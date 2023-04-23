@@ -6,17 +6,16 @@
 
 # pySigma carbonblack Backend
 
-This is the carbonblack backend for pySigma. It provides the package `sigma.backends.carbonblack` with the `carbonblackBackend` class.
+This is the carbonblack backend for pySigma. It provides the package `sigma.backends.carbonblack` with the `CarbonBlackBackend` class.
 Further, it contains the following processing pipelines in `sigma.pipelines.carbonblack`:
 
-* pipeline1: purpose
-* pipeline2: purpose
+* CarbonBlack_pipeline: Uses Carbon Black Enterprise EDR field mappings
+* CarbonBlackResponse_pipeline: Uses Carbon Black EDR field mappings
 
 It supports the following output formats:
 
-* default: plain carbonblack queries
-* format_1: purpose
-* format_2: purpose
+* default: plain CarbonBlack queries
+* json: JSON output to include query and rule metadata
 
 This backend is currently maintained by:
 
