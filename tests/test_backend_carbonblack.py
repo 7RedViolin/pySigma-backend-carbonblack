@@ -1,19 +1,18 @@
 import pytest
 from sigma.collection import SigmaCollection
-from sigma.backends.carbonblack import carbonblackBackend
+from sigma.backends.carbonblack import CarbonBlackBackend
 
 @pytest.fixture
 def carbonblack_backend():
-    return carbonblackBackend()
+    return CarbonBlackBackend()
 
-# TODO: implement tests for some basic queries and their expected results.
-def test_carbonblack_and_expression(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_and_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
             logsource:
-                category: test_category
+                category: process_creation
                 product: test_product
             detection:
                 sel:
@@ -21,15 +20,15 @@ def test_carbonblack_and_expression(carbonblack_backend : carbonblackBackend):
                     fieldB: valueB
                 condition: sel
         """)
-    ) == ['<insert expected result here>']
+    ) == ['fieldA:valueA fieldB:valueB']
 
-def test_carbonblack_or_expression(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_or_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
             logsource:
-                category: test_category
+                category: process_creation
                 product: test_product
             detection:
                 sel1:
@@ -38,15 +37,15 @@ def test_carbonblack_or_expression(carbonblack_backend : carbonblackBackend):
                     fieldB: valueB
                 condition: 1 of sel*
         """)
-    ) == ['<insert expected result here>']
+    ) == ['fieldA:valueA OR fieldB:valueB']
 
-def test_carbonblack_and_or_expression(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_and_or_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
             logsource:
-                category: test_category
+                category: process_creation
                 product: test_product
             detection:
                 sel:
@@ -58,15 +57,15 @@ def test_carbonblack_and_or_expression(carbonblack_backend : carbonblackBackend)
                         - valueB2
                 condition: sel
         """)
-    ) == ['<insert expected result here>']
+    ) == ['(fieldA:valueA1 OR fieldA:valueA2) (fieldB:valueB1 OR fieldB:valueB2)']
 
-def test_carbonblack_or_and_expression(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_or_and_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
             logsource:
-                category: test_category
+                category: process_creation
                 product: test_product
             detection:
                 sel1:
@@ -77,9 +76,9 @@ def test_carbonblack_or_and_expression(carbonblack_backend : carbonblackBackend)
                     fieldB: valueB2
                 condition: 1 of sel*
         """)
-    ) == ['<insert expected result here>']
+    ) == ['(fieldA:valueA1 fieldB:valueB1) OR (fieldA:valueA2 fieldB:valueB2)']
 
-def test_carbonblack_in_expression(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_in_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
@@ -95,9 +94,9 @@ def test_carbonblack_in_expression(carbonblack_backend : carbonblackBackend):
                         - valueC*
                 condition: sel
         """)
-    ) == ['<insert expected result here>']
+    ) == ['fieldA:valueA OR fieldA:valueB OR fieldA:valueC*']
 
-def test_carbonblack_regex_query(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_regex_query(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
@@ -111,9 +110,9 @@ def test_carbonblack_regex_query(carbonblack_backend : carbonblackBackend):
                     fieldB: foo
                 condition: sel
         """)
-    ) == ['<insert expected result here>']
+    ) == ['fieldA:foo.*bar AND fieldB:foo']
 
-def test_carbonblack_cidr_query(carbonblack_backend : carbonblackBackend):
+def test_carbonblack_cidr_query(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
@@ -126,10 +125,11 @@ def test_carbonblack_cidr_query(carbonblack_backend : carbonblackBackend):
                     field|cidr: 192.168.0.0/16
                 condition: sel
         """)
-    ) == ['<insert expected result here>']
+    ) == ['field:192.168.*']
 
-def test_carbonblack_field_name_with_whitespace(carbonblack_backend : carbonblackBackend):
-    assert carbonblack_backend.convert(
+def test_carbonblack_default_output(carbonblack_backend : CarbonBlackBackend):
+    """Test for output format format1."""
+    assert sentinelone_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -138,24 +138,23 @@ def test_carbonblack_field_name_with_whitespace(carbonblack_backend : carbonblac
                 product: test_product
             detection:
                 sel:
-                    field name: value
+                    field: valueA
                 condition: sel
         """)
-    ) == ['<insert expected result here>']
+    ) == ['field:valueA']
 
-# TODO: implement tests for all backend features that don't belong to the base class defaults, e.g. features that were
-# implemented with custom code, deferred expressions etc.
-
-
-
-def test_carbonblack_format1_output(carbonblack_backend : carbonblackBackend):
-    """Test for output format format1."""
-    # TODO: implement a test for the output format
-    pass
-
-def test_carbonblack_format2_output(carbonblack_backend : carbonblackBackend):
-    """Test for output format format2."""
-    # TODO: implement a test for the output format
-    pass
-
-
+def test_carbonblack_json_output(carbonblack_backend : CarbonBlackBackend):
+    """Test for output format json."""
+    assert sentinelone_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    Image: valueA
+                condition: sel
+        """), "json"
+    ) == {"queries":[{"query":'field:valueA', "title":"Test", "id":None, "description":None}]}
