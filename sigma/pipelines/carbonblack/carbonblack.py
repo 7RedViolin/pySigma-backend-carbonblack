@@ -66,7 +66,7 @@ def CarbonBlackResponse_pipeline() -> ProcessingPipeline:
         "TargetFilename":"filemod", 
         "ImageLoaded":"modload",
         "TargetObject": "regmod",
-        "DestinationHostname":"domain:",
+        "DestinationHostname":"domain",
         "DestinationPort":"ipport",
         "DestinationIp":"ipaddr",
         "SourceIp":"ipaddr",
