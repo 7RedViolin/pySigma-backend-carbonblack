@@ -23,26 +23,20 @@ class CarbonBlackBackend(TextQueryBackend):
     group_expression : ClassVar[str] = "({expr})"   # Expression for precedence override grouping as format string with {expr} placeholder
     parenthesize : bool = True
 
-    # Generated query tokens
     token_separator : str = " "     # separator inserted between all boolean operators
     or_token : ClassVar[str] = "OR"
     and_token : ClassVar[str] = " "
     not_token : ClassVar[str] = "-"
     eq_token : ClassVar[str] = ":"  # Token inserted between field and value (without separator)
 
-    # String output
-    ## Fields
-    ### Quoting
     field_quote : ClassVar[str] = '"'                              # Character used to quote field characters if field_quote_pattern matches (or not, depending on field_quote_pattern_negation). No field name quoting is done if not set.
     field_quote_pattern : ClassVar[Pattern] = re.compile("^\\w+$")   # Quote field names if this pattern (doesn't) matches, depending on field_quote_pattern_negation. Field name is always quoted if pattern is not set.
     field_quote_pattern_negation : ClassVar[bool] = True            # Negate field_quote_pattern result. Field name is quoted if pattern doesn't matches if set to True (default).
 
-    ### Escaping
     field_escape : ClassVar[str] = "\\"               # Character to escape particular parts defined in field_escape_pattern.
     field_escape_quote : ClassVar[bool] = True        # Escape quote string defined in field_quote
     field_escape_pattern : ClassVar[Pattern] = re.compile("\\s")   # All matches of this pattern are prepended with the string contained in field_escape.
 
-    ## Values
     str_quote       : ClassVar[str] = ''     # string quoting character (added as escaping character)
     escape_char     : ClassVar[str] = "\\"    # Escaping character for special characrers inside string
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
@@ -54,37 +48,22 @@ class CarbonBlackBackend(TextQueryBackend):
         False: "FALSE",
     }
 
-    # Regular expressions
-    # Regular expression query as format string with placeholders {field}, {regex}, {flag_x} where x
-    # is one of the flags shortcuts supported by Sigma (currently i, m and s) and refers to the
-    # token stored in the class variable re_flags.
     re_expression : ClassVar[str] = "{field}:{regex}"
     re_escape_char : ClassVar[str] = "\\"               # Character used for escaping in regular expressions
     re_escape : ClassVar[Tuple[str]] = ()               # List of strings that are escaped
     re_escape_escape_char : bool = True                 # If True, the escape character is also escaped
     re_flag_prefix : bool = False                        # If True, the flags are prepended as (?x) group at the beginning of the regular expression, e.g. (?i). If this is not supported by the target, it should be set to False.
 
-    # cidr expressions
-    cidr_wildcard : ClassVar[str] = "*"    # Character used as single wildcard
-    cidr_expression : ClassVar[str] = "cidrmatch({field}, {value})"    # CIDR expression query as format string with placeholders {field} = {value}
-    cidr_in_list_expression : ClassVar[str] = "{field} in ({value})"    # CIDR expression query as format string with placeholders {field} = in({list})
 
-    # Numeric comparison operators
     compare_op_expression : ClassVar[str] = "{field}:{value}"
 
-    # Null/None expressions
-    #field_null_expression : ClassVar[str] = "{field} is null"          # Expression for field has null value as format string with {field} placeholder for field name
-
-    # Field existence condition expressions.
     field_exists_expression : ClassVar[str] = "{field}:*"             # Expression for field existence as format string with {field} placeholder for field name
     field_not_exists_expression : ClassVar[str] = "-{field}:*"      # Expression for field non-existence as format string with {field} placeholder for field name. If not set, field_exists_expression is negated with boolean NOT.
 
-    # Field value in list, e.g. "field in (value list)" or "field containsall (value list)"
     convert_or_as_in : ClassVar[bool] = False                     # Convert OR as in-expression
     convert_and_as_in : ClassVar[bool] = False                    # Convert AND as in-expression
     in_expressions_allow_wildcards : ClassVar[bool] = False       # Values in list can contain wildcards. If set to False (default) only plain values are converted into in-expressions.
 
-    # Value not bound to a field
     unbound_value_str_expression : ClassVar[str] = '"{value}"'   # Expression for string value not bound to a field as format string with placeholder {value}
     unbound_value_num_expression : ClassVar[str] = '{value}'     # Expression for number value not bound to a field as format string with placeholder {value}
     unbound_value_re_expression : ClassVar[str] = '{value}'   # Expression for regular expression not bound to a field as format string with placeholder {value} and {flag_x} as described for re_expression
@@ -124,7 +103,7 @@ class CarbonBlackBackend(TextQueryBackend):
         return queries
     
     def finalize_query_json(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> Any:
-        return {"query": query}
+        return {"query": query, 'title':rule.title, 'id':rule.id, 'description':rule.description}
 
     def finalize_output_json(self, queries: List[str]) -> Any:
         return {"queries":queries}
