@@ -154,7 +154,7 @@ def test_carbonblack_json_output(carbonblack_backend : CarbonBlackBackend):
                 product: test_product
             detection:
                 sel:
-                    Image: valueA
+                    field: valueA
                 condition: sel
         """), "json"
     ) == {"queries":[{"query":'field:valueA', "title":"Test", "id":None, "description":None}]}
