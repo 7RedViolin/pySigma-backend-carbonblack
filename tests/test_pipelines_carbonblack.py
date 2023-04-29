@@ -94,7 +94,7 @@ def test_cbr_field_mapping(cbr_backend : CarbonBlackBackend):
                 condition: sel
         """)
     ) == ['process_pid:12 process_name:valueA path:bar\\ bar file_desc:foo\\ bar product_name:bar\\ foo ' + 
-          'company_name:foo\\ foo cmdline:invoke-mimiktaz process_name:etc username:administrator ' + 
+          'company_name:foo\\ foo cmdline:invoke-mimikatz process_name:etc username:administrator ' + 
           'md5:asdfasdfasdfasdfasdf sha256:asdfasdfasdfasdfasdfasdfasdfasdf parent_pid:13 parent_name:valueB ' + 
           'filemod:test.txt modload:test.dll regmod:HKCU domain:google.com ipport:445 ipaddr:1.1.1.1 ' + 
           'ipaddr:2.2.2.2 ipport:135 ipaddr:3.3.3.3 ipaddr:4.4.4.4 ipport:80 ipport:443']
