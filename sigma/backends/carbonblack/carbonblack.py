@@ -5,7 +5,6 @@ from sigma.conditions import ConditionItem, ConditionAND, ConditionOR, Condition
 from sigma.types import SigmaCompareExpression, SigmaRegularExpression, SigmaRegularExpressionFlag, SigmaString
 from sigma.conversion.deferred import DeferredQueryExpression
 from sigma.processing.pipeline import ProcessingPipeline
-from sigma.pipelines.carbonblack import CarbonBlack_pipeline, CarbonBlackResponse_pipeline
 import sigma
 import re
 from typing import ClassVar, Dict, Tuple, Pattern, List, Any, Union
