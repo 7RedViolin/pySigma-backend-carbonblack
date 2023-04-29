@@ -20,7 +20,7 @@ def test_carbonblack_and_expression(carbonblack_backend : CarbonBlackBackend):
                     fieldB: valueB
                 condition: sel
         """)
-    ) == ['fieldA:valueA fieldB:valueB']
+    ) == ['fieldA:valueA AND fieldB:valueB']
 
 def test_carbonblack_or_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
@@ -57,7 +57,7 @@ def test_carbonblack_and_or_expression(carbonblack_backend : CarbonBlackBackend)
                         - valueB2
                 condition: sel
         """)
-    ) == ['(fieldA:valueA1 OR fieldA:valueA2) (fieldB:valueB1 OR fieldB:valueB2)']
+    ) == ['(fieldA:valueA1 OR fieldA:valueA2) AND (fieldB:valueB1 OR fieldB:valueB2)']
 
 def test_carbonblack_or_and_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
@@ -76,7 +76,7 @@ def test_carbonblack_or_and_expression(carbonblack_backend : CarbonBlackBackend)
                     fieldB: valueB2
                 condition: 1 of sel*
         """)
-    ) == ['(fieldA:valueA1 fieldB:valueB1) OR (fieldA:valueA2 fieldB:valueB2)']
+    ) == ['(fieldA:valueA1 AND fieldB:valueB1) OR (fieldA:valueA2 AND fieldB:valueB2)']
 
 def test_carbonblack_in_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
@@ -129,7 +129,7 @@ def test_carbonblack_cidr_query(carbonblack_backend : CarbonBlackBackend):
 
 def test_carbonblack_default_output(carbonblack_backend : CarbonBlackBackend):
     """Test for output format format1."""
-    assert sentinelone_backend.convert(
+    assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -145,7 +145,7 @@ def test_carbonblack_default_output(carbonblack_backend : CarbonBlackBackend):
 
 def test_carbonblack_json_output(carbonblack_backend : CarbonBlackBackend):
     """Test for output format json."""
-    assert sentinelone_backend.convert(
+    assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
