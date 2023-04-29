@@ -204,7 +204,7 @@ def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
                     OriginalFileName: cobalt.exe
                     TargetFilename: test.txt
                     ImageLoaded: test.dll
-                    Sginature: Microsoft
+                    Signature: Microsoft
                     TargetObject: HKCU
                     DestinationHostname: google.com
                     DestinationPort: 445
