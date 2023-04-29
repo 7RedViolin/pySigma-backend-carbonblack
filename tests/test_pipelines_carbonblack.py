@@ -24,7 +24,7 @@ def test_cbr_windows_os_filter(cbr_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['os_type:windows AND process_name:valueA']
+    ) == ['os_type:windows process_name:valueA']
 
 def test_cbr_linux_os_filter(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -39,7 +39,7 @@ def test_cbr_linux_os_filter(cbr_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['os_type:linux AND process_name:valueA']
+    ) == ['os_type:linux process_name:valueA']
 
 def test_cbr_osx_os_filter(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -54,7 +54,7 @@ def test_cbr_osx_os_filter(cbr_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['os_type:osx AND process_name:valueA']
+    ) == ['os_type:osx process_name:valueA']
 
 def test_cbr_field_mapping(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -93,11 +93,11 @@ def test_cbr_field_mapping(cbr_backend : CarbonBlackBackend):
                     src_port: 443
                 condition: sel
         """)
-    ) == ['process_pid:12 AND process_name:valueA AND path:bar\\ bar AND file_desc:foo\\ bar AND product_name:bar\\ foo AND ' + 
-          'company_name:foo\\ foo AND cmdline:invoke-mimiktaz AND process_name:etc AND username:administrator AND ' + 
-          'md5:asdfasdfasdfasdfasdf AND sha256:asdfasdfasdfasdfasdfasdfasdfasdf AND parent_pid:13 AND parent_name:valueB AND ' + 
-          'filemod:test.txt AND modload:test.dll AND regmod:HKCU AND domain:google.com AND ipport:445 AND ipaddr:1.1.1.1 AND ' + 
-          'ipaddr:2.2.2.2 AND ipport:135 AND ipaddr:3.3.3.3 AND ipaddr:4.4.4.4 AND ipport:80 AND ipport:443']
+    ) == ['process_pid:12 process_name:valueA path:bar\\ bar file_desc:foo\\ bar product_name:bar\\ foo ' + 
+          'company_name:foo\\ foo cmdline:invoke-mimiktaz process_name:etc username:administrator ' + 
+          'md5:asdfasdfasdfasdfasdf sha256:asdfasdfasdfasdfasdfasdfasdfasdf parent_pid:13 parent_name:valueB ' + 
+          'filemod:test.txt modload:test.dll regmod:HKCU domain:google.com ipport:445 ipaddr:1.1.1.1 ' + 
+          'ipaddr:2.2.2.2 ipport:135 ipaddr:3.3.3.3 ipaddr:4.4.4.4 ipport:80 ipport:443']
 
 def test_cbr_unsupported_rule_type(cbr_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):
@@ -147,7 +147,7 @@ def test_cb_windows_os_filter(cb_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['device_os:WINDOWS AND process_name:valueA']
+    ) == ['device_os:WINDOWS process_name:valueA']
 
 def test_cb_linux_os_filter(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
@@ -162,7 +162,7 @@ def test_cb_linux_os_filter(cb_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['device_os:LINUX AND process_name:valueA']
+    ) == ['device_os:LINUX process_name:valueA']
 
 def test_cb_osx_os_filter(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
@@ -177,7 +177,7 @@ def test_cb_osx_os_filter(cb_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['device_os:MAC AND process_name:valueA']
+    ) == ['device_os:MAC process_name:valueA']
 
 def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
@@ -220,14 +220,14 @@ def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
                     SrcPort: 5900
                 condition: sel
         """)
-    ) == ['process_pid:12 AND process_name:valueA AND process_file_description:foo\\ bar AND process_product_name:bar\\ foo AND ' + 
-          'process_company_name:foo\\ foo AND process_cmdline:invoke-mimikatz AND process_name:etc AND ' + 
-          'process_username:administrator AND process_integrity_level:bar\\ bar AND parent_pid:13 AND parent_name:valueB AND ' + 
-          'parent_cmdline:invoke-atomic AND process_original_filename:cobalt.exe AND filemod_name:test.txt AND ' + 
-          'modload_name:test.dll AND modload_publisher:Microsoft AND regmod_name:HKCU AND netconn_domain:google.com AND ' + 
-          'netconn_port:445 AND (netconn_ipv4:1.1.1.1 OR netconn_ipv6:1.1.1.1) AND (netconn_ipv4:2.2.2.2 OR netconn_ipv6:2.2.2.2) AND ' + 
-          'netconn_port:135 AND (netconn_protocol:UDP OR netconn_application_protocol:UDP) AND (netconn_ipv4:3.3.3.3 OR netconn_ipv6:3.3.3.3) AND ' + 
-          '(netconn_ipv4:4.4.4.4 OR netconn_ipv6:4.4.4.4) AND netconn_port:80 AND netconn_port:443 AND netconn_port:8080 AND netconn_port:5900']
+    ) == ['process_pid:12 process_name:valueA process_file_description:foo\\ bar process_product_name:bar\\ foo ' + 
+          'process_company_name:foo\\ foo process_cmdline:invoke-mimikatz process_name:etc ' + 
+          'process_username:administrator process_integrity_level:bar\\ bar parent_pid:13 parent_name:valueB ' + 
+          'parent_cmdline:invoke-atomic process_original_filename:cobalt.exe filemod_name:test.txt ' + 
+          'modload_name:test.dll modload_publisher:Microsoft regmod_name:HKCU netconn_domain:google.com ' + 
+          'netconn_port:445 (netconn_ipv4:1.1.1.1 OR netconn_ipv6:1.1.1.1) (netconn_ipv4:2.2.2.2 OR netconn_ipv6:2.2.2.2) ' + 
+          'netconn_port:135 (netconn_protocol:UDP OR netconn_application_protocol:UDP) (netconn_ipv4:3.3.3.3 OR netconn_ipv6:3.3.3.3) ' + 
+          '(netconn_ipv4:4.4.4.4 OR netconn_ipv6:4.4.4.4) netconn_port:80 netconn_port:443 netconn_port:8080 netconn_port:5900']
 
 def test_cb_process_field_mapping(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
@@ -243,7 +243,7 @@ def test_cb_process_field_mapping(cb_backend : CarbonBlackBackend):
                     sha256: qwerqwerqwerqwer
                 condition: sel
         """)
-    ) == ['process_hash:asdfasdfasdfasdf AND process_hash:qwerqwerqwerqwer']
+    ) == ['process_hash:asdfasdfasdfasdf process_hash:qwerqwerqwerqwer']
 
 def test_cb_image_load_field_mapping(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
@@ -259,7 +259,7 @@ def test_cb_image_load_field_mapping(cb_backend : CarbonBlackBackend):
                     sha256: qwerqwerqwerqwer
                 condition: sel
         """)
-    ) == ['modload_hash:asdfasdfasdfasdf AND modload_hash:qwerqwerqwerqwer']
+    ) == ['modload_hash:asdfasdfasdfasdf modload_hash:qwerqwerqwerqwer']
 
 def test_cb_unsupported_rule_type(cb_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):

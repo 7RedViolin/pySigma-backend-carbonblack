@@ -20,7 +20,7 @@ def test_carbonblack_and_expression(carbonblack_backend : CarbonBlackBackend):
                     fieldB: valueB
                 condition: sel
         """)
-    ) == ['fieldA:valueA AND fieldB:valueB']
+    ) == ['fieldA:valueA fieldB:valueB']
 
 def test_carbonblack_or_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
@@ -57,7 +57,7 @@ def test_carbonblack_and_or_expression(carbonblack_backend : CarbonBlackBackend)
                         - valueB2
                 condition: sel
         """)
-    ) == ['(fieldA:valueA1 OR fieldA:valueA2) AND (fieldB:valueB1 OR fieldB:valueB2)']
+    ) == ['(fieldA:valueA1 OR fieldA:valueA2) (fieldB:valueB1 OR fieldB:valueB2)']
 
 def test_carbonblack_or_and_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
@@ -76,7 +76,7 @@ def test_carbonblack_or_and_expression(carbonblack_backend : CarbonBlackBackend)
                     fieldB: valueB2
                 condition: 1 of sel*
         """)
-    ) == ['(fieldA:valueA1 AND fieldB:valueB1) OR (fieldA:valueA2 AND fieldB:valueB2)']
+    ) == ['(fieldA:valueA1 fieldB:valueB1) OR (fieldA:valueA2 fieldB:valueB2)']
 
 def test_carbonblack_in_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
@@ -110,7 +110,7 @@ def test_carbonblack_regex_query(carbonblack_backend : CarbonBlackBackend):
                     fieldB: foo
                 condition: sel
         """)
-    ) == ['fieldA:foo.*bar AND fieldB:foo']
+    ) == ['fieldA:foo.*bar fieldB:foo']
 
 def test_carbonblack_cidr_query(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
