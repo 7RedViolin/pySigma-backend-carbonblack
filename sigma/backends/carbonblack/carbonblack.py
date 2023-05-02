@@ -14,7 +14,8 @@ class CarbonBlackBackend(TextQueryBackend):
 
     name : ClassVar[str] = "CarbonBlack backend"
     formats : Dict[str, str] = {
-        "default": "Plain CarbonBlack queries",        
+        "default": "Plain CarbonBlack queries",
+        "json": "CarbonBlack JSON query",
     }
 
     requires_pipeline : bool = False
