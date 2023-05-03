@@ -21,6 +21,44 @@ This backend is currently maintained by:
 
 * [Cori Smith](https://github.com/7RedViolin/)
 
+## Installation
+This can be installed via pip from PyPI
+
+```bash
+pip install pysigma-backend-carbonblack
+```
+
+## Usage
+
+### pySigma
+```python
+from sigma.backends.carbonblack import CarbonBlackBackend
+from sigma.pipelines.carbonblack import CarbonBlack_pipeline, CarbonBlackResponse_pipeline
+import yaml
+
+from sigma.rule import SigmaRule
+
+rule = SigmaRule.from_yaml("""
+title: Invoke-Mimikatz CommandLine
+status: test
+logsource:
+    category: process_creation
+    product: windows
+detection:
+    sel:
+        CommandLine|contains: Invoke-Mimikatz
+    condition: sel""")
+
+# cb_backend = CarbonBlackBackend(CarbonBlack_pipeline())
+
+# If you want to use the field names for the legacy Carbon Black EDR (fka Response)
+#cbr_backend = CarbonBlackBackend(CarbonBlackResponse_pipeline())
+
+print(f"Cb query: {cb_backend.convert_rule(rule)[0]}")
+
+#print(f"CbR query: {cbr_backend.convert_rule(rule)[0]}")
+```
+
 ## Side Notes &  Limitations
 - Backend uses Carbon Black syntax
 - Pipelines exist for both Carbon Black Enterprise EDR and Carbon Black EDR
