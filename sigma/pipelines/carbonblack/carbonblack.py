@@ -128,7 +128,7 @@ def CarbonBlackResponse_pipeline() -> ProcessingPipeline:
         ProcessingItem(
             identifier="cbr_fail_rule_not_supported",
             rule_condition_linking=any,
-            transformation=RuleFailureTransformation("Rule type not yet supported by the SentinelOne Sigma backend"),
+            transformation=RuleFailureTransformation("Rule type not yet supported by the Carbon Black Response Sigma backend"),
             rule_condition_negation=True,
             rule_conditions=[
                 RuleProcessingItemAppliedCondition("cbr_logsource")
@@ -138,7 +138,7 @@ def CarbonBlackResponse_pipeline() -> ProcessingPipeline:
 
     unsupported_field_names = [
         ProcessingItem(
-            identifier="cb_fail_field_name_not_supported",
+            identifier="cbr_fail_field_name_not_supported",
             transformation=InvalidFieldTransformation("The supported fields are: {" + 
                 "}, {".join(sorted(list(translation_dict.keys()))) + '}'),
             field_name_conditions=[
@@ -273,10 +273,25 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
                 LogsourceCondition(category="image_load")
             ]
         ),
+        # File Changes Hashes
+        ProcessingItem(
+            identifier="cb_filemod_fieldmapping",
+            transformation=FieldMappingTransformation({
+                "sha256":"filemod_hash",
+                "md5": "filemod_hash",
+            }),
+            rule_condition_linking=any,
+            rule_conditions=[
+                LogsourceCondition(category="file_change"),
+                LogsourceCondition(category="file_rename"),
+                LogsourceCondition(category="file_delete"),
+                LogsourceCondition(category="file_event"),
+            ]
+        ),
     ]
 
     change_logsource_info = [
-        # Add service to be SentinelOne for pretty much everything
+        # Add service to be CarbonBlack for pretty much everything
         ProcessingItem(
             identifier="cb_logsource",
             transformation=ChangeLogsourceTransformation(
@@ -305,7 +320,7 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
         ProcessingItem(
             identifier="cb_fail_rule_not_supported",
             rule_condition_linking=any,
-            transformation=RuleFailureTransformation("Rule type not yet supported by the SentinelOne Sigma backend"),
+            transformation=RuleFailureTransformation("Rule type not yet supported by the Carbon Black Sigma backend"),
             rule_condition_negation=True,
             rule_conditions=[
                 RuleProcessingItemAppliedCondition("cb_logsource")
@@ -327,8 +342,8 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
 
     return ProcessingPipeline(
         name="carbonblack pipeline",
-        allowed_backends=frozenset(),                                               # Set of identifiers of backends (from the backends mapping) that are allowed to use this processing pipeline. This can be used by frontends like Sigma CLI to warn the user about inappropriate usage.
-        priority=50,            # The priority defines the order pipelines are applied. See documentation for common values.
+        allowed_backends=frozenset(), # Set of identifiers of backends (from the backends mapping) that are allowed to use this processing pipeline. This can be used by frontends like Sigma CLI to warn the user about inappropriate usage.
+        priority=50, # The priority defines the order pipelines are applied. See documentation for common values.
         items=[
             *unsupported_field_names,
             *os_filters,
