@@ -261,6 +261,23 @@ def test_cb_image_load_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['modload_hash:asdfasdfasdfasdf modload_hash:qwerqwerqwerqwer']
 
+
+def test_cb_filemod_field_mapping(cb_backend : CarbonBlackBackend):
+    assert cb_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: file_event
+                product: test_product
+            detection:
+                sel:
+                    md5: asdfasdfasdfasdf
+                    sha256: qwerqwerqwerqwer
+                condition: sel
+        """)
+    ) == ['filemod_hash:asdfasdfasdfasdf filemod_hash:qwerqwerqwerqwer']
+
 def test_cb_unsupported_rule_type(cb_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):
     cb_backend.convert(
