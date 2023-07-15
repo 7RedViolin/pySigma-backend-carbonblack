@@ -78,6 +78,22 @@ def test_carbonblack_or_and_expression(carbonblack_backend : CarbonBlackBackend)
         """)
     ) == ['(fieldA:valueA1 fieldB:valueB1) OR (fieldA:valueA2 fieldB:valueB2)']
 
+def test_carbonblack_not_expression(carbonblack_backend : CarbonBlackBackend):
+    assert carbonblack_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    fieldA: valueA
+                condition: not sel
+        """)
+    ) == ['-fieldA:valueA']
+
+
 def test_carbonblack_in_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
         SigmaCollection.from_yaml("""
