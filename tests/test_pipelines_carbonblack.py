@@ -261,7 +261,6 @@ def test_cb_image_load_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['modload_hash:asdfasdfasdfasdf modload_hash:qwerqwerqwerqwer']
 
-
 def test_cb_filemod_field_mapping(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
         SigmaCollection.from_yaml("""
