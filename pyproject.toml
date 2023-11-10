@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "pySigma-backend-carbonblack"
-version = "0.1.4"
+version = "0.1.5"
 description = "pySigma carbonblack backend"
 authors = ["Cori Smith <cs2718281@gmail.com>"]
 license = "MIT"
@@ -11,7 +11,7 @@ packages = [
 
 [tool.poetry.dependencies]
 python = "^3.8"
-pysigma = "^0.9.6"
+pysigma = ">=0.9.6"
 
 [tool.poetry.dev-dependencies]
 
