@@ -70,7 +70,8 @@ class CarbonBlackBackend(TextQueryBackend):
     unbound_value_re_expression : ClassVar[str] = '{value}'   # Expression for regular expression not bound to a field as format string with placeholder {value} and {flag_x} as described for re_expression
 
     def convert_value_str(self, s : SigmaString, state : ConversionState) -> str:
-        """Convert a SigmaString into a plain string which can be used in query."""
+        """Convert a SigmaString into a plain string which can be used in query.
+        In carbonBlack, leading wildcards are implied and not allowed to be explicitly added in the query"""
         converted = s.convert(
             self.escape_char,
             self.wildcard_multi,
@@ -78,6 +79,9 @@ class CarbonBlackBackend(TextQueryBackend):
             self.str_quote + self.add_escaped,
             self.filter_chars,
         )
+        if converted.startswith(self.wildcard_multi) or converted.startswith(self.wildcard_single):
+            converted = converted[1:]
+
         if self.decide_string_quoting(s):
             return self.quote_string(converted)
         else:
