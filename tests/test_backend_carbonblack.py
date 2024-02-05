@@ -93,6 +93,50 @@ def test_carbonblack_not_expression(carbonblack_backend : CarbonBlackBackend):
         """)
     ) == ['-fieldA:valueA']
 
+def test_carbonblack_contains_expression(carbonblack_backend : CarbonBlackBackend):
+    assert carbonblack_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    fieldA|contains: valueA
+                condition: sel
+        """)
+    ) == ['fieldA:valueA*']
+
+def test_carbonblack_startswith_expression(carbonblack_backend : CarbonBlackBackend):
+    assert carbonblack_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    fieldA|startswith: valueA
+                condition: sel
+        """)
+    ) == ['fieldA:valueA*']
+
+def test_carbonblack_endswith_expression(carbonblack_backend : CarbonBlackBackend):
+    assert carbonblack_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    fieldA|endswith: valueA
+                condition: sel
+        """)
+    ) == ['fieldA:valueA']
 
 def test_carbonblack_in_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
