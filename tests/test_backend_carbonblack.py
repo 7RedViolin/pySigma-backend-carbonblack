@@ -95,7 +95,8 @@ def test_carbonblack_not_expression(carbonblack_backend : CarbonBlackBackend):
 
 def test_carbonblack_contains_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
-        SigmaCollection.from_yaml("""title: Test
+        SigmaCollection.from_yaml("""
+            title: Test
             status: test
             logsource:
                 category: process_creation
@@ -109,7 +110,8 @@ def test_carbonblack_contains_expression(carbonblack_backend : CarbonBlackBacken
 
 def test_carbonblack_startswith_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
-        SigmaCollection.from_yaml("""title: Test
+        SigmaCollection.from_yaml("""
+            title: Test
             status: test
             logsource:
                 category: process_creation
@@ -123,7 +125,8 @@ def test_carbonblack_startswith_expression(carbonblack_backend : CarbonBlackBack
 
 def test_carbonblack_endswith_expression(carbonblack_backend : CarbonBlackBackend):
     assert carbonblack_backend.convert(
-        SigmaCollection.from_yaml("""title: Test
+        SigmaCollection.from_yaml("""
+            title: Test
             status: test
             logsource:
                 category: process_creation
