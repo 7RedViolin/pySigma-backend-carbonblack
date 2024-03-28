@@ -218,7 +218,7 @@ def test_carbonblack_convert_string_value(carbonblack_backend : CarbonBlackBacke
                 sel:
                     fieldA: this contains a space
                     fieldB: this(contains)parenthesis
-                    fieldC: thiscontainsacolon:
+                    fieldC: "thiscontainsacolon:"
                 condition: sel
         """)
     ) == ['fieldA:this\\ contains\\ a\\ space AND fieldB:this\(contains\)parenthesis AND fieldC:thiscontainsacolon\:']
