@@ -42,7 +42,7 @@ class CarbonBlackBackend(TextQueryBackend):
     escape_char     : ClassVar[str] = "\\"    # Escaping character for special characrers inside string
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
     wildcard_single : ClassVar[str] = "*"     # Character used as single-character wildcard
-    add_escaped     : ClassVar[str] = " ():-"    # Characters quoted in addition to wildcards and string quote
+    add_escaped     : ClassVar[str] = " ():"    # Characters quoted in addition to wildcards and string quote
     filter_chars    : ClassVar[str] = ""      # Characters filtered
     bool_values     : ClassVar[Dict[bool, str]] = {   # Values to which boolean values are mapped.
         True: "TRUE",
@@ -70,8 +70,11 @@ class CarbonBlackBackend(TextQueryBackend):
     unbound_value_re_expression : ClassVar[str] = '{value}'   # Expression for regular expression not bound to a field as format string with placeholder {value} and {flag_x} as described for re_expression
 
     def convert_value_str(self, s : SigmaString, state : ConversionState) -> str:
-        """Convert a SigmaString into a plain string which can be used in query.
-        In carbonBlack, leading wildcards are implied and not allowed to be explicitly added in the query"""
+        """
+        Convert a SigmaString into a plain string which can be used in query.
+        In carbonBlack, leading wildcards are implied and not allowed to be explicitly added in the query
+        In Carbon Black, hyphens prepended with a space that do not denote a "NOT" clause must be escaped
+        """
         converted = s.convert(
             self.escape_char,
             self.wildcard_multi,
@@ -81,6 +84,9 @@ class CarbonBlackBackend(TextQueryBackend):
         )
         if converted.startswith(self.wildcard_multi) or converted.startswith(self.wildcard_single):
             converted = converted[1:]
+
+        if " -" in converted:
+            converted = converted.replace(" -"," \\-")
 
         if self.decide_string_quoting(s):
             return self.quote_string(converted)
