@@ -62,8 +62,8 @@ print(f"Cb query: {cb_backend.convert_rule(rule)[0]}")
 ## Side Notes &  Limitations
 - Backend uses Carbon Black syntax
 - Pipelines exist for both Carbon Black Enterprise EDR and Carbon Black EDR
-- Pipelines support linux, windows, and macos product types
-- Pipelines support the following category types for field mappings
+- Both pipelines support linux, windows, and macos product types
+- Both pipelines support the following category types for field mappings
   - `process_creation`
   - `file_event`
   - `file_change`
@@ -76,4 +76,60 @@ print(f"Cb query: {cb_backend.convert_rule(rule)[0]}")
   - `registry_set`
   - `network_connection`
   - `firewall`
+- Carbon Black Response pipeline supports the following fields
+  - `CommandLine`
+  - `Company`
+  - `CurrentDirectory`
+  - `Description`
+  - `DestinationHostname`
+  - `DestinationIp`
+  - `DestinationPort`
+  - `Image`
+  - `ImageLoaded`
+  - `ImagePath`
+  - `ParentImage`
+  - `ParentProcessId`
+  - `ProcessId`
+  - `Product`
+  - `SourceIp`
+  - `SourcePort`
+  - `TargetFilename`
+  - `TargetObject`
+  - `User`
+  - `dst_ip`
+  - `dst_port`
+  - `md5`
+  - `sha256`
+  - `src_ip`
+  - `src_port`
+- Carbon Black Cloud pipeline supports the following fields
+  - `CommandLine`
+  - `Company`
+  - `CurrentDirectory`
+  - `Description`
+  - `DestinationHostname`
+  - `DestinationIp`
+  - `DestinationPort`
+  - `DstPort`
+  - `Image`
+  - `ImageLoaded`
+  - `IntegrityLevel`
+  - `OriginalFileName`
+  - `ParentCommandLine`
+  - `ParentImage`
+  - `ParentProcessId`
+  - `ProcessId`
+  - `Product`
+  - `Protocol`
+  - `Signature`
+  - `SourceIp`
+  - `SourcePort`
+  - `SrcPort`
+  - `TargetFilename`
+  - `TargetObject`
+  - `User`
+  - `dst_ip`
+  - `dst_port`
+  - `src_ip`
+  - `src_port`
 - Any unsupported fields or categories will throw errors
