@@ -74,7 +74,9 @@ def CarbonBlackResponse_pipeline() -> ProcessingPipeline:
         "dst_ip":"ipaddr",
         "src_ip":"ipaddr",
         "dst_port":"ipport",
-        "src_port":"ipport"
+        "src_port":"ipport",
+        "SrcPort": "ipport",
+        "DstPort": "ipport"
     }
 
     field_mappings = [
@@ -182,6 +184,7 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
     translation_dict = {
         "ProcessId":"process_pid",
         "Image":"process_name",
+        "ImagePath": "process_name",
         "Description":"process_file_description",
         "Product":"process_product_name",
         "Company":"process_company_name",
