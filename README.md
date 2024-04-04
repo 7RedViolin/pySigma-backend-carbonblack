@@ -62,8 +62,8 @@ print(f"Cb query: {cb_backend.convert_rule(rule)[0]}")
 ## Side Notes &  Limitations
 - Backend uses Carbon Black syntax
 - Pipelines exist for both Carbon Black Enterprise EDR and Carbon Black EDR
-- Pipelines support linux, windows, and macos product types
-- Pipelines support the following category types for field mappings
+- Both pipelines support linux, windows, and macos product types
+- Both pipelines support the following category types for field mappings
   - `process_creation`
   - `file_event`
   - `file_change`
@@ -76,4 +76,39 @@ print(f"Cb query: {cb_backend.convert_rule(rule)[0]}")
   - `registry_set`
   - `network_connection`
   - `firewall`
-- Any unsupported fields or categories will throw errors
+- Below is a chart of supported fields. Any unsupported fields or categories will throw errors
+
+
+| Field Name | Carbon Black Response | Carbon Black Cloud |
+| --- | --- | --- |
+| CommandLine | :heavy_check_mark: | :heavy_check_mark: |
+| Company | :heavy_check_mark: | :heavy_check_mark: |
+| CurrentDirectory | :heavy_check_mark: | :heavy_check_mark: |
+| Description | :heavy_check_mark: | :heavy_check_mark: |
+| DestinationHostname | :heavy_check_mark: | :heavy_check_mark: |
+| DestinationIp | :heavy_check_mark: | :heavy_check_mark: |
+| DestinationPort | :heavy_check_mark: | :heavy_check_mark: |
+| DstPort | :heavy_check_mark: | :heavy_check_mark: |
+| Image | :heavy_check_mark: | :heavy_check_mark: |
+| ImageLoaded | :heavy_check_mark: | :heavy_check_mark: |
+| ImagePath | :heavy_check_mark: | :heavy_check_mark: |
+| IntegrityLevel | :x: | :heavy_check_mark: |
+| OriginalFileName | :x: | :heavy_check_mark: |
+| ParentCommandLine | :x: | :heavy_check_mark: |
+| ParentImage | :heavy_check_mark: | :heavy_check_mark: |
+| ParentProcessId | :heavy_check_mark: | :heavy_check_mark: |
+| ProcessId | :heavy_check_mark: | :heavy_check_mark: |
+| Product | :heavy_check_mark: | :heavy_check_mark: |
+| Protocol | :x: | :heavy_check_mark: |
+| SourceIp | :heavy_check_mark: | :heavy_check_mark: |
+| SourcePort | :heavy_check_mark: | :heavy_check_mark: |
+| SrcPort | :heavy_check_mark: | :heavy_check_mark: |
+| TargetFilename | :heavy_check_mark: | :heavy_check_mark: |
+| TargetObject | :heavy_check_mark: | :heavy_check_mark: |
+| User | :heavy_check_mark: | :heavy_check_mark: |
+| dst_ip | :heavy_check_mark: | :heavy_check_mark: |
+| dst_port | :heavy_check_mark: | :heavy_check_mark: |
+| md5 | :heavy_check_mark: | :heavy_check_mark: |
+| sha256 | :heavy_check_mark: | :heavy_check_mark: |
+| src_ip | :heavy_check_mark: | :heavy_check_mark: |
+| src_port | :heavy_check_mark: | :heavy_check_mark: |
