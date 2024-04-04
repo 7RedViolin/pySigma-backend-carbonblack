@@ -219,9 +219,10 @@ def test_carbonblack_convert_string_value(carbonblack_backend : CarbonBlackBacke
                     fieldA: this contains a space
                     fieldB: this(contains)parenthesis
                     fieldC: "thiscontainsacolon:"
+                    fieldD: "thiscontainsahyphen-"
                 condition: sel
         """)
-    ) == ['fieldA:this\\ contains\\ a\\ space fieldB:this\(contains\)parenthesis fieldC:thiscontainsacolon\:']
+    ) == ['fieldA:this\\ contains\\ a\\ space fieldB:this\(contains\)parenthesis fieldC:thiscontainsacolon\: fieldD:thiscontainsahyphen\-']
 
 def test_carbonblack_default_output(carbonblack_backend : CarbonBlackBackend):
     """Test for output format format1."""
