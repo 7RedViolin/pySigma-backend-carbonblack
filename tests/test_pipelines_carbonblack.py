@@ -1,7 +1,7 @@
 import pytest
 from sigma.collection import SigmaCollection
 from sigma.backends.carbonblack import CarbonBlackBackend
-from sigma.pipelines.carbonblack import CarbonBlackResponse_pipeline, CarbonBlack_pipeline
+from sigma.pipelines.carbonblack import CarbonBlackResponse_pipeline, CarbonBlack_pipeline, CarbonBlackEvents_pipeline
 
 @pytest.fixture
 def cbr_backend():
@@ -10,6 +10,10 @@ def cbr_backend():
 @pytest.fixture
 def cb_backend():
     return CarbonBlackBackend(CarbonBlack_pipeline())
+
+@pytest.fixture
+def cb_event_backend():
+    return CarbonBlackBackend(CarbonBlackEvents_pipeline)
 
 def test_cbr_windows_os_filter(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -312,8 +316,8 @@ def test_cb_unsupported_field_name(cb_backend : CarbonBlackBackend):
         """)
     )
 
-def test_cb_event_field_mapping(cb_backend : CarbonBlackBackend):
-    assert cb_backend.convert(
+def test_cb_event_field_mapping(cb_event_backend : CarbonBlackBackend):
+    assert cb_event_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -347,8 +351,8 @@ def test_cb_event_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['childproc_name:valueA childproc_name:ImagePath_value childproc_cmdline:invoke-mimikatz childproc_name:etc childproc_username:administrator filemod_name:test.txt modload_name:test.dll modload_publisher:Microsoft regmod_name:HKCU netconn_domain:google.com netconn_remote_port:445 (netconn_remote_ipv4:1.1.1.1 OR netconn_remote_ipv6:1.1.1.1) (netconn_local_ipv4:2.2.2.2 OR netconn_local_ipv6:2.2.2.2) netconn_local_port:135 netconn_protocol:UDP (netconn_remote_ipv4:3.3.3.3 OR netconn_remote_ipv6:3.3.3.3) (netconn_local_ipv4:4.4.4.4 OR netconn_local_ipv6:4.4.4.4) netconn_remote_port:80 netconn_local_port:443 netconn_remote_port:8080 netconn_local_port:5900']
 
-def test_cb_event_process_field_mapping(cb_backend : CarbonBlackBackend):
-    assert cb_backend.convert(
+def test_cb_event_process_field_mapping(cb_event_backend : CarbonBlackBackend):
+    assert cb_event_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -363,8 +367,8 @@ def test_cb_event_process_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['childproc_md5:asdfasdfasdfasdf childproc_sha256:qwerqwerqwerqwer']
 
-def test_cb_event_image_load_field_mapping(cb_backend : CarbonBlackBackend):
-    assert cb_backend.convert(
+def test_cb_event_image_load_field_mapping(cb_event_backend : CarbonBlackBackend):
+    assert cb_event_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -379,8 +383,8 @@ def test_cb_event_image_load_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['modload_md5:asdfasdfasdfasdf modload_sha256:qwerqwerqwerqwer']
 
-def test_cb_event_filemod_field_mapping(cb_backend : CarbonBlackBackend):
-    assert cb_backend.convert(
+def test_cb_event_filemod_field_mapping(cb_event_backend : CarbonBlackBackend):
+    assert cb_event_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -395,9 +399,9 @@ def test_cb_event_filemod_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['filemod_md5:asdfasdfasdfasdf filemod_sha256:qwerqwerqwerqwer']
 
-def test_cb_event_unsupported_rule_type(cb_backend : CarbonBlackBackend):
+def test_cb_event_unsupported_rule_type(cb_event_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):
-    cb_backend.convert(
+    cb_event_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
@@ -414,9 +418,9 @@ def test_cb_event_unsupported_rule_type(cb_backend : CarbonBlackBackend):
         """)
     )
 
-def test_cb_event_unsupported_field_name(cb_backend : CarbonBlackBackend):
+def test_cb_event_unsupported_field_name(cb_event_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):
-    cb_backend.convert(
+    cb_event_backend.convert(
         SigmaCollection.from_yaml("""
             title: Test
             status: test
