@@ -90,6 +90,7 @@ def CarbonBlackResponse_pipeline() -> ProcessingPipeline:
                 LogsourceCondition(category="file_rename"),
                 LogsourceCondition(category="file_delete"),
                 LogsourceCondition(category="file_event"),
+                LogsourceCondition(category="image_load"),
                 LogsourceCondition(category="registry_add"),
                 LogsourceCondition(category="registry_delete"),
                 LogsourceCondition(category="registry_event"),
@@ -162,6 +163,7 @@ def CarbonBlackResponse_pipeline() -> ProcessingPipeline:
             *unsupported_rule_types
         ]
     )
+
 
 def CarbonBlack_pipeline() -> ProcessingPipeline:
 
@@ -350,6 +352,144 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
         items=[
             *unsupported_field_names,
             *os_filters,
+            *field_mappings,
+            *change_logsource_info,
+            *unsupported_rule_types
+        ]
+    )
+
+def CarbonBlackEvents_pipeline() -> ProcessingPipeline:
+
+    supported_categories = [
+        LogsourceCondition(category="process_creation"),
+        LogsourceCondition(category="file_change"),
+        LogsourceCondition(category="file_rename"),
+        LogsourceCondition(category="file_delete"),
+        LogsourceCondition(category="file_event"),
+        LogsourceCondition(category="image_load"),
+        LogsourceCondition(category="registry_add"),
+        LogsourceCondition(category="registry_delete"),
+        LogsourceCondition(category="registry_event"),
+        LogsourceCondition(category="registry_set"),
+        LogsourceCondition(category="network_connection"),
+        LogsourceCondition(category="firewall")
+    ]
+
+    general_supported_fields = ['md5','sha256']
+
+    translation_dict = {
+        "Image":"childproc_name",
+        "ImagePath": "childproc_name",
+        "CommandLine":"childproc_cmdline",
+        "CurrentDirectory":"childproc_name",
+        "User":"childproc_username",
+        "TargetFilename":"filemod_name",
+        "ImageLoaded":"modload_name",
+        "Signature":"modload_publisher",
+        "TargetObject": "regmod_name",
+        "DestinationHostname":"netconn_domain",
+        "DestinationPort":"netconn_remote_port",
+        "DestinationIp":["netconn_remote_ipv4","netconn_remote_ipv6"],
+        "SourceIp":["netconn_local_ipv4","netconn_local_ipv6"],
+        "SourcePort":"netconn_local_port",
+        "Protocol":["netconn_protocol"],
+        "dst_ip":["netconn_remote_ipv4","netconn_remote_ipv6"],
+        "src_ip":["netconn_local_ipv4","netconn_local_ipv6"],
+        "dst_port":"netconn_remote_port",
+        "src_port":"netconn_local_port",
+        "DstPort":"netconn_remote_port",
+        "SrcPort":"netconn_local_port"
+    }
+
+    field_mappings = [
+        ProcessingItem(
+            identifier="cb_events_fieldmapping",
+            transformation=FieldMappingTransformation(translation_dict),
+            rule_condition_linking=any,
+            rule_conditions=supported_categories
+        ),
+        # Process Creation Hashes
+        ProcessingItem(
+            identifier="cb_events_process_creation_fieldmapping",
+            transformation=FieldMappingTransformation({
+                "md5":"childproc_md5",
+                "sha256":"childproc_sha256",
+            }),
+            rule_conditions=[
+                LogsourceCondition(category="process_creation"),
+            ]
+        ),
+        # Module Load Hashes
+        ProcessingItem(
+            identifier="cb_events_image_load_fieldmapping",
+            transformation=FieldMappingTransformation({
+                "sha256":"modload_sha256",
+                "md5": "modload_md5",
+            }),
+            rule_conditions=[
+                LogsourceCondition(category="image_load")
+            ]
+        ),
+        # File Changes Hashes
+        ProcessingItem(
+            identifier="cb_events_filemod_fieldmapping",
+            transformation=FieldMappingTransformation({
+                "sha256":"filemod_sha256",
+                "md5": "filemod_md5",
+            }),
+            rule_condition_linking=any,
+            rule_conditions=[
+                LogsourceCondition(category="file_change"),
+                LogsourceCondition(category="file_rename"),
+                LogsourceCondition(category="file_delete"),
+                LogsourceCondition(category="file_event"),
+            ]
+        ),
+    ]
+
+    change_logsource_info = [
+        # Add service to be CarbonBlack for pretty much everything
+        ProcessingItem(
+            identifier="cb_events_logsource",
+            transformation=ChangeLogsourceTransformation(
+                service="carbonblack"
+            ),
+            rule_condition_linking=any,
+            rule_conditions=supported_categories
+        ),
+    ]
+
+    unsupported_rule_types = [
+        # Show error if unsupported option
+        ProcessingItem(
+            identifier="cb_events_fail_rule_not_supported",
+            rule_condition_linking=any,
+            transformation=RuleFailureTransformation("Rule type not yet supported by the Carbon Black Sigma backend"),
+            rule_condition_negation=True,
+            rule_conditions=[
+                RuleProcessingItemAppliedCondition("cb_events_logsource")
+            ]
+        )
+    ]
+
+    unsupported_field_names = [
+        ProcessingItem(
+            identifier="cb_events_fail_field_name_not_supported",
+            transformation=InvalidFieldTransformation("The supported fields are: {" + 
+                "}, {".join(sorted(list(translation_dict.keys()) + general_supported_fields)) + '}'),
+            field_name_conditions=[
+                ExcludeFieldCondition(fields=list(translation_dict.keys()) + general_supported_fields)
+            ],
+            field_name_condition_linking=any
+        )
+    ]
+
+    return ProcessingPipeline(
+        name="carbonblack events pipeline",
+        allowed_backends=frozenset(), # Set of identifiers of backends (from the backends mapping) that are allowed to use this processing pipeline. This can be used by frontends like Sigma CLI to warn the user about inappropriate usage.
+        priority=50, # The priority defines the order pipelines are applied. See documentation for common values.
+        items=[
+            *unsupported_field_names,
             *field_mappings,
             *change_logsource_info,
             *unsupported_rule_types
