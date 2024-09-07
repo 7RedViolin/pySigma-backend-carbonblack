@@ -13,7 +13,7 @@ def cb_backend():
 
 @pytest.fixture
 def cb_event_backend():
-    return CarbonBlackBackend(CarbonBlackEvents_pipeline)
+    return CarbonBlackBackend(CarbonBlackEvents_pipeline())
 
 def test_cbr_windows_os_filter(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
