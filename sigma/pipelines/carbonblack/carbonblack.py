@@ -178,7 +178,8 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
         LogsourceCondition(category="registry_event"),
         LogsourceCondition(category="registry_set"),
         LogsourceCondition(category="network_connection"),
-        LogsourceCondition(category="firewall")
+        LogsourceCondition(category="firewall"),
+        LogsourceCondition(category="image_load")
     ]
 
     general_supported_fields = ['md5','sha256']
