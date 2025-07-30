@@ -42,7 +42,7 @@ class CarbonBlackBackend(TextQueryBackend):
     escape_char     : ClassVar[str] = "\\"    # Escaping character for special characrers inside string
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
     wildcard_single : ClassVar[str] = "*"     # Character used as single-character wildcard
-    add_escaped     : ClassVar[str] = " ():"    # Characters quoted in addition to wildcards and string quote
+    add_escaped     : ClassVar[str] = " \\/():\\"    # Characters quoted in addition to wildcards and string quote
     filter_chars    : ClassVar[str] = ""      # Characters filtered
     bool_values     : ClassVar[Dict[bool, str]] = {   # Values to which boolean values are mapped.
         True: "TRUE",
