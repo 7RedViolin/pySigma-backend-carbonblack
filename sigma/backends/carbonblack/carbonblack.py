@@ -127,6 +127,26 @@ class CarbonBlackBackend(TextQueryBackend):
             return self.quote_string(converted)
         else:
             return converted
+        
+
+    def convert_condition_field_eq_val_str(
+        self, cond: ConditionFieldEqualsValueExpression, state: ConversionState
+        ) -> Union[str, DeferredQueryExpression]:
+            """
+            Conversion of field = string value expressions
+            Override of TextQueryBackend method so we can pass the field in the apply_cbr_pipeline_attrs method.
+            """
+            try:
+                return self.eq_expression.format(
+                    field=self.escape_and_quote_field(cond.field),
+                    value=self.convert_value_str(cond.value, state, cond.field),
+                    backend=self,
+                )
+            except TypeError:
+                raise NotImplementedError(
+                    "Field equals string value expressions with strings are not supported by the backend."
+                )
+
 
     def convert_condition_field_compare_op_val(self, cond : ConditionFieldEqualsValueExpression, state : ConversionState) -> Union[str, DeferredQueryExpression]:
         """Conversion of numeric comparison operations into queries.
