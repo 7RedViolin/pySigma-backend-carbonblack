@@ -361,21 +361,6 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
 
 def CarbonBlackEvents_pipeline() -> ProcessingPipeline:
 
-    supported_categories = [
-        LogsourceCondition(category="process_creation"),
-        LogsourceCondition(category="file_change"),
-        LogsourceCondition(category="file_rename"),
-        LogsourceCondition(category="file_delete"),
-        LogsourceCondition(category="file_event"),
-        LogsourceCondition(category="image_load"),
-        LogsourceCondition(category="registry_add"),
-        LogsourceCondition(category="registry_delete"),
-        LogsourceCondition(category="registry_event"),
-        LogsourceCondition(category="registry_set"),
-        LogsourceCondition(category="network_connection"),
-        LogsourceCondition(category="firewall")
-    ]
-
     general_supported_fields = ['md5','sha256']
 
     translation_dict = {
@@ -407,7 +392,20 @@ def CarbonBlackEvents_pipeline() -> ProcessingPipeline:
             identifier="cb_events_fieldmapping",
             transformation=FieldMappingTransformation(translation_dict),
             rule_condition_linking=any,
-            rule_conditions=supported_categories
+            rule_conditions=[
+                LogsourceCondition(category="process_creation"),
+                LogsourceCondition(category="file_change"),
+                LogsourceCondition(category="file_rename"),
+                LogsourceCondition(category="file_delete"),
+                LogsourceCondition(category="file_event"),
+                LogsourceCondition(category="image_load"),
+                LogsourceCondition(category="registry_add"),
+                LogsourceCondition(category="registry_delete"),
+                LogsourceCondition(category="registry_event"),
+                LogsourceCondition(category="registry_set"),
+                LogsourceCondition(category="network_connection"),
+                LogsourceCondition(category="firewall")
+            ]
         ),
         # Process Creation Hashes
         ProcessingItem(
@@ -456,7 +454,20 @@ def CarbonBlackEvents_pipeline() -> ProcessingPipeline:
                 service="carbonblack"
             ),
             rule_condition_linking=any,
-            rule_conditions=supported_categories
+            rule_conditions=[
+                LogsourceCondition(category="process_creation"),
+                LogsourceCondition(category="file_change"),
+                LogsourceCondition(category="file_rename"),
+                LogsourceCondition(category="file_delete"),
+                LogsourceCondition(category="file_event"),
+                LogsourceCondition(category="image_load"),
+                LogsourceCondition(category="registry_add"),
+                LogsourceCondition(category="registry_delete"),
+                LogsourceCondition(category="registry_event"),
+                LogsourceCondition(category="registry_set"),
+                LogsourceCondition(category="network_connection"),
+                LogsourceCondition(category="firewall")
+            ]
         ),
     ]
 
