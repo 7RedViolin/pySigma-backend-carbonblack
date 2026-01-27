@@ -2,7 +2,7 @@ from sigma.conversion.state import ConversionState
 from sigma.rule import SigmaRule
 from sigma.conversion.base import TextQueryBackend
 from sigma.conditions import ConditionItem, ConditionAND, ConditionOR, ConditionNOT, ConditionFieldEqualsValueExpression
-from sigma.types import SigmaCompareExpression, SigmaRegularExpression, SigmaRegularExpressionFlag, SigmaString
+from sigma.types import SigmaCompareExpression, SigmaRegularExpression, SigmaRegularExpressionFlag, SigmaString, SpecialChars
 from sigma.conversion.deferred import DeferredQueryExpression
 from sigma.processing.pipeline import ProcessingPipeline
 import sigma
@@ -11,12 +11,21 @@ from typing import ClassVar, Dict, Tuple, Pattern, List, Any, Union
 
 class CarbonBlackBackend(TextQueryBackend):
     """CarbonBlack backend."""
-
     name : ClassVar[str] = "CarbonBlack backend"
     formats : Dict[str, str] = {
         "default": "Plain CarbonBlack queries",
         "json": "CarbonBlack JSON query",
     }
+
+    def __init__(self, *args, pipeline=None, **kwargs):
+        # If the first positional argument is a ProcessingPipeline, use it
+        if args and isinstance(args[0], ProcessingPipeline):
+            self.pipeline = args[0]
+            
+        else:
+            self.pipeline = pipeline
+        super().__init__(*args, **kwargs)
+        self.pipeline_name = getattr(self.pipeline, "name", None) if self.pipeline is not None else None
 
     requires_pipeline : bool = False
 
@@ -42,12 +51,12 @@ class CarbonBlackBackend(TextQueryBackend):
     escape_char     : ClassVar[str] = "\\"    # Escaping character for special characrers inside string
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
     wildcard_single : ClassVar[str] = "*"     # Character used as single-character wildcard
-    add_escaped     : ClassVar[str] = " ():"    # Characters quoted in addition to wildcards and string quote
+    add_escaped     : ClassVar[str] = " \\/()[]{}*-^~+!:\"\\"     # Characters quoted in addition to wildcards and string quote
     filter_chars    : ClassVar[str] = ""      # Characters filtered
     bool_values     : ClassVar[Dict[bool, str]] = {   # Values to which boolean values are mapped.
-        True: "TRUE",
-        False: "FALSE",
-    }
+            True: "TRUE",
+            False: "FALSE",
+        }     
 
     re_expression : ClassVar[str] = "{field}:{regex}"
     re_escape_char : ClassVar[str] = "\\"               # Character used for escaping in regular expressions
@@ -69,12 +78,38 @@ class CarbonBlackBackend(TextQueryBackend):
     unbound_value_num_expression : ClassVar[str] = '{value}'     # Expression for number value not bound to a field as format string with placeholder {value}
     unbound_value_re_expression : ClassVar[str] = '{value}'   # Expression for regular expression not bound to a field as format string with placeholder {value} and {flag_x} as described for re_expression
 
-    def convert_value_str(self, s : SigmaString, state : ConversionState) -> str:
+
+    def apply_cbr_pipeline_attrs(self, field):
+
+        if self.pipeline_name == "carbonblack response pipeline":
+                if field == "cmdline":
+                    """Apply special attributes for cmdline field with carbonblack response pipeline."""
+                    self.str_quote       = '"'     # string quoting character (added as escaping character)
+                    self.escape_char     = "\\"    # Escaping character for special characrers inside string
+                    self.wildcard_multi  = "*"     # Character used as multi-character wildcard
+                    self.wildcard_single = "*"     # Character used as single-character wildcard
+                    self.add_escaped     = "()\\"    # Characters quoted in addition to wildcards and string quote
+                    self.filter_chars    = ""      # Characters filtered
+                    self.bool_values     = {True: "TRUE", False: "FALSE"}
+                else:
+                    self.str_quote       = '"'     # string quoting character (added as escaping character)
+                    self.escape_char     = ""    # Escaping character for special characrers inside string
+                    self.wildcard_multi  = "*"     # Character used as multi-character wildcard
+                    self.wildcard_single = "*"     # Character used as single-character wildcard
+                    self.add_escaped     = ""    # Characters quoted in addition to wildcards and string quote
+                    self.filter_chars    = ""      # Characters filtered
+                    self.bool_values     = {True: "TRUE", False: "FALSE"}
+
+    def convert_value_str(self, s : SigmaString, state : ConversionState, field: str = None) -> str:
         """
         Convert a SigmaString into a plain string which can be used in query.
         In carbonBlack, leading wildcards are implied and not allowed to be explicitly added in the query
         In Carbon Black, hyphens prepended with a space that do not denote a "NOT" clause must be escaped
         """
+
+        if self.pipeline_name == "carbonblack response pipeline":
+            self.apply_cbr_pipeline_attrs(field)        
+
         converted = s.convert(
             self.escape_char,
             self.wildcard_multi,
@@ -85,13 +120,33 @@ class CarbonBlackBackend(TextQueryBackend):
         if converted.startswith(self.wildcard_multi) or converted.startswith(self.wildcard_single):
             converted = converted[1:]
 
-        if " -" in converted:
+        if " -" in converted and self.pipeline_name != "carbonblack response pipeline":
             converted = converted.replace(" -"," \\-")
 
         if self.decide_string_quoting(s):
             return self.quote_string(converted)
         else:
             return converted
+        
+
+    def convert_condition_field_eq_val_str(
+        self, cond: ConditionFieldEqualsValueExpression, state: ConversionState
+        ) -> Union[str, DeferredQueryExpression]:
+            """
+            Conversion of field = string value expressions
+            Override of TextQueryBackend method so we can pass the field in the apply_cbr_pipeline_attrs method.
+            """
+            try:
+                return self.eq_expression.format(
+                    field=self.escape_and_quote_field(cond.field),
+                    value=self.convert_value_str(cond.value, state, cond.field),
+                    backend=self,
+                )
+            except TypeError:
+                raise NotImplementedError(
+                    "Field equals string value expressions with strings are not supported by the backend."
+                )
+
 
     def convert_condition_field_compare_op_val(self, cond : ConditionFieldEqualsValueExpression, state : ConversionState) -> Union[str, DeferredQueryExpression]:
         """Conversion of numeric comparison operations into queries.
@@ -128,6 +183,7 @@ class CarbonBlackBackend(TextQueryBackend):
                     return self.not_token + expr
         except TypeError:  # pragma: no cover
             raise NotImplementedError("Operator 'not' not supported by the backend")
+        
 
     def finalize_query_default(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> Any:
         return query

@@ -28,7 +28,7 @@ def test_cbr_windows_os_filter(cbr_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['os_type:windows process_name:valueA']
+    ) == ['os_type:\"windows\" process_name:\"valueA\"']
 
 def test_cbr_linux_os_filter(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -43,7 +43,7 @@ def test_cbr_linux_os_filter(cbr_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['os_type:linux process_name:valueA']
+    ) == ['os_type:\"linux\" process_name:\"valueA\"']
 
 def test_cbr_osx_os_filter(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -58,7 +58,7 @@ def test_cbr_osx_os_filter(cbr_backend : CarbonBlackBackend):
                     Image: valueA
                 condition: sel
         """)
-    ) == ['os_type:osx process_name:valueA']
+    ) == ['os_type:\"osx\" process_name:\"valueA\"']
 
 def test_cbr_field_mapping(cbr_backend : CarbonBlackBackend):
     assert cbr_backend.convert(
@@ -97,11 +97,11 @@ def test_cbr_field_mapping(cbr_backend : CarbonBlackBackend):
                     src_port: 443
                 condition: sel
         """)
-    ) == ['process_pid:12 process_name:valueA path:bar\\ bar file_desc:foo\\ bar product_name:bar\\ foo ' + 
-          'company_name:foo\\ foo cmdline:invoke-mimikatz process_name:etc username:administrator ' + 
-          'md5:asdfasdfasdfasdfasdf sha256:asdfasdfasdfasdfasdfasdfasdfasdf parent_pid:13 parent_name:valueB ' + 
-          'filemod:test.txt modload:test.dll regmod:HKCU domain:google.com ipport:445 ipaddr:1.1.1.1 ' + 
-          'ipaddr:2.2.2.2 ipport:135 ipaddr:3.3.3.3 ipaddr:4.4.4.4 ipport:80 ipport:443']
+    ) == ['process_pid:12 process_name:\"valueA\" path:\"bar bar\" file_desc:\"foo bar\" product_name:\"bar foo\" ' + 
+          'company_name:\"foo foo\" cmdline:\"invoke-mimikatz\" process_name:\"etc\" username:\"administrator\" ' + 
+          'md5:\"asdfasdfasdfasdfasdf\" sha256:\"asdfasdfasdfasdfasdfasdfasdfasdf\" parent_pid:13 parent_name:\"valueB\" ' + 
+          'filemod:\"test.txt\" modload:\"test.dll\" regmod:\"HKCU\" domain:\"google.com\" ipport:445 ipaddr:\"1.1.1.1\" ' + 
+          'ipaddr:\"2.2.2.2\" ipport:135 ipaddr:\"3.3.3.3\" ipaddr:\"4.4.4.4\" ipport:80 ipport:443']
 
 def test_cbr_unsupported_rule_type(cbr_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):
@@ -225,9 +225,9 @@ def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
                 condition: sel
         """)
     ) == ['process_pid:12 process_name:valueA process_file_description:foo\\ bar process_product_name:bar\\ foo ' + 
-          'process_company_name:foo\\ foo process_cmdline:invoke-mimikatz process_name:etc ' + 
+          'process_company_name:foo\\ foo process_cmdline:invoke\\-mimikatz process_name:etc ' + 
           'process_username:administrator process_integrity_level:bar\\ bar parent_pid:13 parent_name:valueB ' + 
-          'parent_cmdline:invoke-atomic process_original_filename:cobalt.exe filemod_name:test.txt ' + 
+          'parent_cmdline:invoke\\-atomic process_original_filename:cobalt.exe filemod_name:test.txt ' + 
           'modload_name:test.dll modload_publisher:Microsoft regmod_name:HKCU netconn_domain:google.com ' + 
           'netconn_port:445 (netconn_ipv4:1.1.1.1 OR netconn_ipv6:1.1.1.1) (netconn_ipv4:2.2.2.2 OR netconn_ipv6:2.2.2.2) ' + 
           'netconn_port:135 (netconn_protocol:UDP OR netconn_application_protocol:UDP) (netconn_ipv4:3.3.3.3 OR netconn_ipv6:3.3.3.3) ' + 
@@ -349,7 +349,7 @@ def test_cb_event_field_mapping(cb_event_backend : CarbonBlackBackend):
                     SrcPort: 5900
                 condition: sel
         """)
-    ) == ['childproc_name:valueA childproc_name:ImagePath_value childproc_cmdline:invoke-mimikatz childproc_name:etc childproc_username:administrator filemod_name:test.txt modload_name:test.dll modload_publisher:Microsoft regmod_name:HKCU netconn_domain:google.com netconn_remote_port:445 (netconn_remote_ipv4:1.1.1.1 OR netconn_remote_ipv6:1.1.1.1) (netconn_local_ipv4:2.2.2.2 OR netconn_local_ipv6:2.2.2.2) netconn_local_port:135 netconn_protocol:UDP (netconn_remote_ipv4:3.3.3.3 OR netconn_remote_ipv6:3.3.3.3) (netconn_local_ipv4:4.4.4.4 OR netconn_local_ipv6:4.4.4.4) netconn_remote_port:80 netconn_local_port:443 netconn_remote_port:8080 netconn_local_port:5900']
+    ) == ['childproc_name:valueA childproc_name:ImagePath_value childproc_cmdline:invoke\\-mimikatz childproc_name:etc childproc_username:administrator filemod_name:test.txt modload_name:test.dll modload_publisher:Microsoft regmod_name:HKCU netconn_domain:google.com netconn_remote_port:445 (netconn_remote_ipv4:1.1.1.1 OR netconn_remote_ipv6:1.1.1.1) (netconn_local_ipv4:2.2.2.2 OR netconn_local_ipv6:2.2.2.2) netconn_local_port:135 netconn_protocol:UDP (netconn_remote_ipv4:3.3.3.3 OR netconn_remote_ipv6:3.3.3.3) (netconn_local_ipv4:4.4.4.4 OR netconn_local_ipv6:4.4.4.4) netconn_remote_port:80 netconn_local_port:443 netconn_remote_port:8080 netconn_local_port:5900']
 
 def test_cb_event_process_field_mapping(cb_event_backend : CarbonBlackBackend):
     assert cb_event_backend.convert(
