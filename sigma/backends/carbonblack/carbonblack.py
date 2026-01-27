@@ -26,7 +26,6 @@ class CarbonBlackBackend(TextQueryBackend):
             self.pipeline = pipeline
         super().__init__(*args, **kwargs)
         self.pipeline_name = getattr(self.pipeline, "name", None) if self.pipeline is not None else None
-        print(f"Pipeline name: {self.pipeline_name}")
 
     requires_pipeline : bool = False
 
@@ -52,7 +51,7 @@ class CarbonBlackBackend(TextQueryBackend):
     escape_char     : ClassVar[str] = "\\"    # Escaping character for special characrers inside string
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
     wildcard_single : ClassVar[str] = "*"     # Character used as single-character wildcard
-    add_escaped     : ClassVar[str] = " \\/()[]{}*-^~+!:\\"     # Characters quoted in addition to wildcards and string quote
+    add_escaped     : ClassVar[str] = " \\/()[]{}*-^~+!:\"\\"     # Characters quoted in addition to wildcards and string quote
     filter_chars    : ClassVar[str] = ""      # Characters filtered
     bool_values     : ClassVar[Dict[bool, str]] = {   # Values to which boolean values are mapped.
             True: "TRUE",
