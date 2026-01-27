@@ -52,7 +52,6 @@ class CarbonBlackBackend(TextQueryBackend):
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
     wildcard_single : ClassVar[str] = "*"     # Character used as single-character wildcard
     add_escaped     : ClassVar[str] = " \\/()[]{}*-^~+!:\"\\"     # Characters quoted in addition to wildcards and string quote
-    add_escaped_re  : ClassVar[str] = " \\/()[]{}*-^~+!:\"\\"  # Characters escaped in regex
     filter_chars    : ClassVar[str] = ""      # Characters filtered
     bool_values     : ClassVar[Dict[bool, str]] = {   # Values to which boolean values are mapped.
             True: "TRUE",
@@ -90,7 +89,6 @@ class CarbonBlackBackend(TextQueryBackend):
                     self.wildcard_multi  = "*"     # Character used as multi-character wildcard
                     self.wildcard_single = "*"     # Character used as single-character wildcard
                     self.add_escaped     = "()\\"    # Characters quoted in addition to wildcards and string quote
-                    self.add_escaped_re  = "()\\"  # Characters escaped in regex
                     self.filter_chars    = ""      # Characters filtered
                     self.bool_values     = {True: "TRUE", False: "FALSE"}
                 else:
@@ -99,7 +97,6 @@ class CarbonBlackBackend(TextQueryBackend):
                     self.wildcard_multi  = "*"     # Character used as multi-character wildcard
                     self.wildcard_single = "*"     # Character used as single-character wildcard
                     self.add_escaped     = ""    # Characters quoted in addition to wildcards and string quote
-                    self.add_escaped_re  = ""  # Characters escaped in regex
                     self.filter_chars    = ""      # Characters filtered
                     self.bool_values     = {True: "TRUE", False: "FALSE"}
 
@@ -167,87 +164,6 @@ class CarbonBlackBackend(TextQueryBackend):
         except TypeError:  # pragma: no cover
             raise NotImplementedError("Operator 'not' not supported by the backend")
         
-
-    def convert_condition_field_eq_val_str(
-        self, cond: ConditionFieldEqualsValueExpression, state: ConversionState
-    ) -> Union[str, DeferredQueryExpression]:
-        """Conversion of field = string value expressions
-        Override of TextQueryBackend method so we can pass the field value where necessary
-        """
-        try:
-            if (  # Check conditions for usage of 'startswith' operator
-                self.startswith_expression
-                is not None  # 'startswith' operator is defined in backend
-                and cond.value.endswith(SpecialChars.WILDCARD_MULTI)  # String ends with wildcard
-                and (
-                    self.startswith_expression_allow_special
-                    or not cond.value[:-1].contains_special()
-                )  # Remainder of string doesn't contains special characters or it's allowed
-            ):
-                expr = (
-                    self.startswith_expression
-                )  # If all conditions are fulfilled, use 'startswith' operator instead of equal token
-                value = cond.value[:-1]
-            elif (  # Same as above but for 'endswith' operator: string starts with wildcard and doesn't contains further special characters
-                self.endswith_expression is not None
-                and cond.value.startswith(SpecialChars.WILDCARD_MULTI)
-                and (
-                    self.endswith_expression_allow_special or not cond.value[1:].contains_special()
-                )
-            ):
-                expr = self.endswith_expression
-                value = cond.value[1:]
-            elif (  # contains: string starts and ends with wildcard
-                self.contains_expression is not None
-                and cond.value.startswith(SpecialChars.WILDCARD_MULTI)
-                and cond.value.endswith(SpecialChars.WILDCARD_MULTI)
-                and (
-                    self.contains_expression_allow_special
-                    or not cond.value[1:-1].contains_special()
-                )
-            ):
-                expr = self.contains_expression
-                value = cond.value[1:-1]
-            elif (  # wildcard match expression: string contains wildcard
-                self.wildcard_match_expression is not None and cond.value.contains_special()
-            ):
-                expr = self.wildcard_match_expression
-                value = cond.value
-            else:
-                expr = self.eq_expression
-                value = cond.value
-            return expr.format(
-                field=self.escape_and_quote_field(cond.field),
-                value=self.convert_value_str(value, state, cond.field),
-                regex=self.convert_value_re(value.to_regex(self.add_escaped_re), state),
-                backend=self,
-            )
-        except TypeError:  # pragma: no cover
-            raise NotImplementedError(
-                "Field equals string value expressions with strings are not supported by the backend."
-            )
-
-    def convert_condition_as_in_expression(
-        self, cond: Union[ConditionOR, ConditionAND], state: ConversionState
-    ) -> Union[str, DeferredQueryExpression]:
-        """Conversion of field in value list conditions.
-        Override of TextQueryBackend method so we can pass the field value where necessary"""
-        return self.field_in_list_expression.format(
-            field=self.escape_and_quote_field(
-                cond.args[0].field
-            ),  # The assumption that the field is the same for all argument is valid because this is checked before
-            op=self.or_in_operator if isinstance(cond, ConditionOR) else self.and_in_operator,
-            list=self.list_separator.join(
-                [
-                    (
-                        self.convert_value_str(arg.value, state, cond.args[0].field)
-                        if isinstance(arg.value, SigmaString)  # string escaping and qouting
-                        else str(arg.value)
-                    )  # value is number
-                    for arg in cond.args
-                ]
-            ),
-        )
 
     def finalize_query_default(self, rule: SigmaRule, query: str, index: int, state: ConversionState) -> Any:
         return query
