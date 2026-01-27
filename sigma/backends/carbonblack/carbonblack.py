@@ -52,6 +52,7 @@ class CarbonBlackBackend(TextQueryBackend):
     wildcard_multi  : ClassVar[str] = "*"     # Character used as multi-character wildcard
     wildcard_single : ClassVar[str] = "*"     # Character used as single-character wildcard
     add_escaped     : ClassVar[str] = " \\/()[]{}*-^~+!:\"\\"     # Characters quoted in addition to wildcards and string quote
+    add_escaped_re  : ClassVar[str] = " \\/()[]{}*-^~+!:\"\\"  # Characters escaped in regex
     filter_chars    : ClassVar[str] = ""      # Characters filtered
     bool_values     : ClassVar[Dict[bool, str]] = {   # Values to which boolean values are mapped.
             True: "TRUE",
@@ -89,6 +90,7 @@ class CarbonBlackBackend(TextQueryBackend):
                     self.wildcard_multi  = "*"     # Character used as multi-character wildcard
                     self.wildcard_single = "*"     # Character used as single-character wildcard
                     self.add_escaped     = "()\\"    # Characters quoted in addition to wildcards and string quote
+                    self.add_escaped_re  = "()\\"  # Characters escaped in regex
                     self.filter_chars    = ""      # Characters filtered
                     self.bool_values     = {True: "TRUE", False: "FALSE"}
                 else:
@@ -97,6 +99,7 @@ class CarbonBlackBackend(TextQueryBackend):
                     self.wildcard_multi  = "*"     # Character used as multi-character wildcard
                     self.wildcard_single = "*"     # Character used as single-character wildcard
                     self.add_escaped     = ""    # Characters quoted in addition to wildcards and string quote
+                    self.add_escaped_re  = ""  # Characters escaped in regex
                     self.filter_chars    = ""      # Characters filtered
                     self.bool_values     = {True: "TRUE", False: "FALSE"}
 
