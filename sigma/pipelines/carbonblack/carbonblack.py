@@ -1,5 +1,5 @@
-from sigma.processing.transformations import AddConditionTransformation, FieldMappingTransformation, DetectionItemFailureTransformation, RuleFailureTransformation, SetStateTransformation, ChangeLogsourceTransformation
-from sigma.processing.conditions import LogsourceCondition, IncludeFieldCondition, ExcludeFieldCondition, RuleProcessingItemAppliedCondition
+from sigma.processing.transformations import AddConditionTransformation, FieldMappingTransformation, DetectionItemFailureTransformation, RuleFailureTransformation, ChangeLogsourceTransformation, MapStringTransformation
+from sigma.processing.conditions import LogsourceCondition, ExcludeFieldCondition, RuleProcessingItemAppliedCondition, IncludeFieldCondition, RuleContainsDetectionItemCondition
 from sigma.processing.pipeline import ProcessingItem, ProcessingPipeline
 from sigma.rule import SigmaDetectionItem
 from sigma.exceptions import SigmaTransformationError
@@ -250,6 +250,50 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
         )
     ]
 
+    value_transformations = [
+        ProcessingItem(
+            identifier="cb_process_unknown_integrity_level",
+            transformation=DetectionItemFailureTransformation("Integrity Level needs to be one of Protected, System, High, Medium, or Low"),
+            field_name_conditions = [
+                IncludeFieldCondition(fields=["IntegrityLevel"])
+            ],
+            rule_conditions = [
+                RuleContainsDetectionItemCondition(
+                    field="IntegrityLevel", value="Protected"
+                ),
+                RuleContainsDetectionItemCondition(
+                    field="IntegrityLevel", value="System"
+                ),
+                RuleContainsDetectionItemCondition(
+                    field="IntegrityLevel", value="High"
+                ),
+                RuleContainsDetectionItemCondition(
+                    field="IntegrityLevel", value="Medium"
+                ),
+                RuleContainsDetectionItemCondition(
+                    field="IntegrityLevel", value="Low"
+                ),
+            ],
+            rule_condition_linking=any,
+            rule_condition_negation=True,
+        ),
+        ProcessingItem(
+            identifier="cb_process_replace_integrity_level",
+            transformation=MapStringTransformation(
+                {
+                    "Protected": "PROTECTED",
+                    "System": "SYSTEM",
+                    "High": "HIGH",
+                    "Medium": "MEDIUM",
+                    "Low": "LOW"
+                }
+            ),
+            field_name_conditions=[
+                IncludeFieldCondition(fields=["IntegrityLevel"])
+            ]
+        )
+    ]
+
     field_mappings = [
         ProcessingItem(
             identifier="cb_fieldmapping",
@@ -353,6 +397,7 @@ def CarbonBlack_pipeline() -> ProcessingPipeline:
         items=[
             *unsupported_field_names,
             *os_filters,
+            *value_transformations,
             *field_mappings,
             *change_logsource_info,
             *unsupported_rule_types

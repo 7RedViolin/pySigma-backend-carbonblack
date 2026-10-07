@@ -2,6 +2,7 @@ import pytest
 from sigma.collection import SigmaCollection
 from sigma.backends.carbonblack import CarbonBlackBackend
 from sigma.pipelines.carbonblack import CarbonBlackResponse_pipeline, CarbonBlack_pipeline, CarbonBlackEvents_pipeline
+from sigma.exceptions import SigmaTransformationError
 
 @pytest.fixture
 def cbr_backend():
@@ -103,6 +104,21 @@ def test_cbr_field_mapping(cbr_backend : CarbonBlackBackend):
           'filemod:\"test.txt\" modload:\"test.dll\" regmod:\"HKCU\" domain:\"google.com\" ipport:445 ipaddr:\"1.1.1.1\" ' + 
           'ipaddr:\"2.2.2.2\" ipport:135 ipaddr:\"3.3.3.3\" ipaddr:\"4.4.4.4\" ipport:80 ipport:443']
 
+def test_cbr_cmdline_wildcard(cbr_backend: CarbonBlackBackend):
+    assert cbr_backend.convert(
+        SigmaCollection.from_yaml("""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    CommandLine|contains: ' /c whoami '
+                condition: sel
+        """)
+    ) == ['cmdline:\" /c whoami \"']
+
 def test_cbr_unsupported_rule_type(cbr_backend : CarbonBlackBackend):
   with pytest.raises(ValueError):
     cbr_backend.convert(
@@ -183,6 +199,39 @@ def test_cb_osx_os_filter(cb_backend : CarbonBlackBackend):
         """)
     ) == ['device_os:MAC process_name:valueA']
 
+def test_cb_integrity_level_mapping(cb_backend: CarbonBlackBackend):
+   levels = ["Protected", "System", "High", "Medium", "Low"]
+   for level in levels:
+    assert cb_backend.convert(
+        SigmaCollection.from_yaml(f"""
+            title: Test
+            status: test
+            logsource:
+                category: process_creation
+                product: test_product
+            detection:
+                sel:
+                    IntegrityLevel: {level}
+                condition: sel
+        """)
+    ) == [f'process_integrity_level:{level.upper()}']
+
+def test_cb_unsupported_integrity_level_mapping(cb_backend: CarbonBlackBackend):
+   with pytest.raises(SigmaTransformationError):
+        assert cb_backend.convert(
+            SigmaCollection.from_yaml(f"""
+                title: Test
+                status: test
+                logsource:
+                    category: process_creation
+                    product: test_product
+                detection:
+                    sel:
+                        IntegrityLevel: Unsupported
+                    condition: sel
+            """)
+        )
+
 def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
     assert cb_backend.convert(
         SigmaCollection.from_yaml("""
@@ -201,7 +250,7 @@ def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
                     CommandLine: invoke-mimikatz
                     CurrentDirectory: etc
                     User: administrator
-                    IntegrityLevel: bar bar
+                    IntegrityLevel: Medium
                     ParentProcessId: 13
                     ParentImage: valueB
                     ParentCommandLine: invoke-atomic
@@ -226,7 +275,7 @@ def test_cb_field_mapping(cb_backend : CarbonBlackBackend):
         """)
     ) == ['process_pid:12 process_name:valueA process_file_description:foo\\ bar process_product_name:bar\\ foo ' + 
           'process_company_name:foo\\ foo process_cmdline:invoke\\-mimikatz process_name:etc ' + 
-          'process_username:administrator process_integrity_level:bar\\ bar parent_pid:13 parent_name:valueB ' + 
+          'process_username:administrator process_integrity_level:MEDIUM parent_pid:13 parent_name:valueB ' + 
           'parent_cmdline:invoke\\-atomic process_original_filename:cobalt.exe filemod_name:test.txt ' + 
           'modload_name:test.dll modload_publisher:Microsoft regmod_name:HKCU netconn_domain:google.com ' + 
           'netconn_port:445 (netconn_ipv4:1.1.1.1 OR netconn_ipv6:1.1.1.1) (netconn_ipv4:2.2.2.2 OR netconn_ipv6:2.2.2.2) ' + 
