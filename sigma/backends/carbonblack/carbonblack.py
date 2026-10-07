@@ -80,25 +80,16 @@ class CarbonBlackBackend(TextQueryBackend):
 
 
     def apply_cbr_pipeline_attrs(self, field):
-
-        if self.pipeline_name == "carbonblack response pipeline":
-                if field == "cmdline":
-                    """Apply special attributes for cmdline field with carbonblack response pipeline."""
-                    self.str_quote       = '"'     # string quoting character (added as escaping character)
-                    self.escape_char     = "\\"    # Escaping character for special characrers inside string
-                    self.wildcard_multi  = ""     # Character used as multi-character wildcard
-                    self.wildcard_single = ""     # Character used as single-character wildcard
-                    self.add_escaped     = "()\\"    # Characters quoted in addition to wildcards and string quote
-                    self.filter_chars    = ""      # Characters filtered
-                    self.bool_values     = {True: "TRUE", False: "FALSE"}
-                else:
-                    self.str_quote       = '"'     # string quoting character (added as escaping character)
-                    self.escape_char     = ""    # Escaping character for special characrers inside string
-                    self.wildcard_multi  = "*"     # Character used as multi-character wildcard
-                    self.wildcard_single = "*"     # Character used as single-character wildcard
-                    self.add_escaped     = ""    # Characters quoted in addition to wildcards and string quote
-                    self.filter_chars    = ""      # Characters filtered
-                    self.bool_values     = {True: "TRUE", False: "FALSE"}
+        if field == "cmdline":
+            """Apply special attributes for cmdline field with carbonblack response pipeline."""
+            self.str_quote       = '"'     # string quoting character (added as escaping character)
+            self.wildcard_multi  = ""     # Character used as multi-character wildcard
+            self.wildcard_single = ""     # Character used as single-character wildcard
+            self.add_escaped     = "()\\"    # Characters quoted in addition to wildcards and string quote
+        else:
+            self.str_quote       = '"'     # string quoting character (added as escaping character)
+            self.escape_char     = ""    # Escaping character for special characrers inside string
+            self.add_escaped     = ""    # Characters quoted in addition to wildcards and string quote
 
     def convert_value_str(self, s : SigmaString, state : ConversionState, field: str = None) -> str:
         """
